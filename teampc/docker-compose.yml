@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+
+  # ── Gitea ─────────────────────────────────────────────────
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    restart: unless-stopped
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__server__HTTP_PORT=3000
+      - GITEA__server__ROOT_URL=http://${TEAM_PC_IP}:3000
+      - GITEA__server__SSH_DOMAIN=${TEAM_PC_IP}
+      - GITEA__server__SSH_PORT=2222
+      - GITEA__service__DISABLE_REGISTRATION=true
+    volumes:
+      - ./gitea-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${TEAM_PC_IP}:3000:3000"
+      - "${TEAM_PC_IP}:2222:22"
+    networks:
+      - ctf-net
+
+  # ── ExploitFarm ───────────────────────────────────────────
+  exploitfarm:
+    image: ghcr.io/pwnzer0tt1/exploitfarm:latest
+    container_name: exploitfarm
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./exploits:/exploits
+    ports:
+      - "${TEAM_PC_IP}:5050:5050"
+    networks:
+      - ctf-net
+
+networks:
+  ctf-net:
+    driver: bridge

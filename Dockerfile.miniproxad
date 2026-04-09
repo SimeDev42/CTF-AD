@@ -1,0 +1,32 @@
+# Stage 1 — build
+FROM rust:1.87-bookworm AS builder
+
+RUN apt-get update && apt-get install -y \
+    python3-dev \
+    libpython3-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+RUN git clone https://github.com/bynect/mini-proxad.git .
+
+# pyo3 ha bisogno di sapere dove trovare Python
+ENV PYO3_PYTHON=python3
+
+RUN cargo build --release
+
+# Stage 2 — runtime
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y \
+    python3 \
+    libpython3.11 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /build/target/release/mini-proxad /usr/local/bin/mini-proxad
+
+RUN mkdir -p /pcaps
+
+ENTRYPOINT ["mini-proxad"]
+CMD ["--config", "/config.yml"]
