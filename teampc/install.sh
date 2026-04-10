@@ -84,6 +84,10 @@ info "Clono Tulip..."
 if [ ! -d "tulip" ]; then
     git clone https://github.com/OpenAttackDefenseTools/tulip.git
 fi
+# Fix TimescaleDB build issue (requires clang19/llvm19 per Alpine 3.22)
+sed -i 's/clang15 llvm15/clang19 llvm19/' tulip/services/timescale/Dockerfile
+# Fix port conflict between Gitea (3000) and Tulip (3000 -> 8888)
+sed -i "s/\"3000:3000\"/\"${TEAM_PC_IP}:8888:3000\"/" tulip/docker-compose.yml
 
 # Genera configurazione Tulip
 cat > tulip/services/api/configurations.py << TULIPEOF
