@@ -14,7 +14,7 @@ info() { echo -e "${CYAN}→${NC} $1"; }
 warn() { echo -e "${YELLOW}!${NC} $1"; }
 err()  { echo -e "${RED}✗ ERRORE:${NC} $1"; exit 1; }
 
-INSTALL_DIR="/root/ctf-teampc"
+INSTALL_DIR="./ctf-teampc"
 
 echo ""
 echo -e "${CYAN}╔══════════════════════════════════════╗${NC}"
